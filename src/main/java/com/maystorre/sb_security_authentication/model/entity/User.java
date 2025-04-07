@@ -1,12 +1,18 @@
-package com.maystorre.sb_security_authentication.entity;
+package com.maystorre.sb_security_authentication.model.entity;
 
 import com.maystorre.sb_security_authentication.enums.UserRole;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-
-    private String id;
+    private Long id;
     private String name;
     private String email;
     private String password;
