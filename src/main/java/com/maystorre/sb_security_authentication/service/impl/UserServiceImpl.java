@@ -4,46 +4,68 @@ import com.maystorre.sb_security_authentication.enums.UserRole;
 import com.maystorre.sb_security_authentication.exceptions.APIException;
 import com.maystorre.sb_security_authentication.model.dto.user.UserRequestDto;
 import com.maystorre.sb_security_authentication.model.dto.user.UserResponseDto;
+import com.maystorre.sb_security_authentication.model.entity.Role;
 import com.maystorre.sb_security_authentication.model.entity.User;
+import com.maystorre.sb_security_authentication.repository.RoleRepository;
+import com.maystorre.sb_security_authentication.repository.UserRespository;
 import com.maystorre.sb_security_authentication.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    private List<User> users = new ArrayList<>();
-    private Long id = 0L;
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
+    private final UserRespository userRespository;
+    private final RoleRepository roleRepository;
+
+    public UserServiceImpl(UserRespository userRespository, RoleRepository roleRepository) {
+        this.userRespository = userRespository;
+        this.roleRepository=roleRepository;
+    }
+
 
     @Override
     public UserResponseDto createUser(UserRequestDto user) {
-        id++;
-        users.add(userDtoToUserClass(user));
-        return new UserResponseDto(id, user.name(), user.email(), List.of(UserRole.ROLE_USER));
+        // Find the role (or handle it if it doesn't exist)
+        Long roleId = user.role() != null ? user.role() : 2L;
+
+        Optional<Role> roleOptional = roleRepository.findById(roleId);
+        Role role = roleOptional.orElseThrow(() -> new RuntimeException("Role not found: " + roleId));
+
+        // Log the role information
+        logger.info("Role found: {}", role);
+
+        User savedUser = userRespository.save(userDtoToUserClass(user));
+        return new UserResponseDto(savedUser.getId(), savedUser.getName(), savedUser.getEmail(), savedUser.getRole().getId());
     }
 
     @Override
     public UserResponseDto getUserById(Long id) {
-         for(User u : users) {
-             if(u.getId() == id) {
-                 return new UserResponseDto(u.getId(), u.getName(), u.getEmail(), u.getRoles());
-             }
-         }
-         throw new APIException("User not found", HttpStatus.NOT_FOUND);
-
+        return userRespository.findById(id)
+                .map(u -> new UserResponseDto(u.getId(), u.getName(), u.getEmail(), u.getRole().getId()))
+                .orElseThrow(() -> new APIException("User not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public List<UserResponseDto> getAllUsers() {
-        return users.stream()
-                .map(user -> new UserResponseDto(user.getId(), user.getName(), user.getEmail(),user.getRoles()))
+        return userRespository.findAll().stream()
+                .map(u -> new UserResponseDto(u.getId(), u.getName(), u.getEmail(), u.getRole().getId()))
                 .toList();
     }
 
     private User userDtoToUserClass(UserRequestDto userRequestDto) {
-        return new User(id, userRequestDto.name(), userRequestDto.email(), userRequestDto.password(), List.of(UserRole.ROLE_USER));
+        Long roleId = userRequestDto.role() != null ? userRequestDto.role() : 2L;
+        Optional<Role> roleOptional = roleRepository.findById(roleId);
+        Role role = roleOptional.orElseThrow(() -> new RuntimeException("Role not found: " + roleId));
+
+        return new User(userRequestDto.name(), userRequestDto.email(), userRequestDto.password(), role);
     }
 }

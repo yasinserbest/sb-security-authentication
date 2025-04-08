@@ -13,9 +13,9 @@ public record UserRequestDto(
         String email,
 
         @NotNull
-        String password
+        String password,
+
+        Long role
 
 ) {
-
-
 }
