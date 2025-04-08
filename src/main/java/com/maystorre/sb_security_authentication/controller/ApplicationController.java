@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ApplicationController {
 
-    @GetMapping("/public/hello")
+    @GetMapping("/hello")
     public String publicHello() {
         return "Hello, world!";
     }
 
-    @GetMapping("/private/user")
+    @GetMapping("/user")
     public String privateUser() {
         return "Hello, authenticated user!";
     }
 
-    @GetMapping("/private/admin")
+    @GetMapping("/admin")
     public String privateAdmin() {
         return "Welcome, admin!";
     }

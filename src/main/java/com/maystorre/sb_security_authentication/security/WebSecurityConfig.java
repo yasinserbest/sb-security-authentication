@@ -34,10 +34,11 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/hello").permitAll()
                         .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/api/private/admin").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/admin").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/api/user").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated()
                 )
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
