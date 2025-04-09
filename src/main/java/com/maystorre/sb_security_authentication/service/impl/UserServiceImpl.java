@@ -1,6 +1,5 @@
 package com.maystorre.sb_security_authentication.service.impl;
 
-import com.maystorre.sb_security_authentication.enums.UserRole;
 import com.maystorre.sb_security_authentication.exceptions.APIException;
 import com.maystorre.sb_security_authentication.model.dto.user.UserRequestDto;
 import com.maystorre.sb_security_authentication.model.dto.user.UserResponseDto;
@@ -13,8 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
