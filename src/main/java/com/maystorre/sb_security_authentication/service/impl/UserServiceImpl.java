@@ -1,5 +1,6 @@
 package com.maystorre.sb_security_authentication.service.impl;
 
+import com.maystorre.sb_security_authentication.enums.UserRole;
 import com.maystorre.sb_security_authentication.exceptions.APIException;
 import com.maystorre.sb_security_authentication.model.dto.user.UserRequestDto;
 import com.maystorre.sb_security_authentication.model.dto.user.UserResponseDto;
@@ -11,6 +12,8 @@ import com.maystorre.sb_security_authentication.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
@@ -41,20 +44,35 @@ public class UserServiceImpl implements UserService {
         logger.info("Role found: {}", role);
 
         User savedUser = userRespository.save(userDtoToUserClass(user));
-        return new UserResponseDto(savedUser.getId(), savedUser.getName(), savedUser.getEmail(), savedUser.getRole().getId());
+        return new UserResponseDto(
+                savedUser.getId(),
+                savedUser.getName(),
+                savedUser.getEmail(),
+                UserRole.valueOf(savedUser.getRole().getRoleName())
+        );
     }
 
     @Override
     public UserResponseDto getUserById(Long id) {
         return userRespository.findById(id)
-                .map(u -> new UserResponseDto(u.getId(), u.getName(), u.getEmail(), u.getRole().getId()))
+                .map(u -> new UserResponseDto(
+                        u.getId(),
+                        u.getName(),
+                        u.getEmail(),
+                        UserRole.valueOf(u.getRole().getRoleName()) // Assuming roleName matches UserRole enum
+                ))
                 .orElseThrow(() -> new APIException("User not found", HttpStatus.NOT_FOUND));
     }
 
     @Override
     public List<UserResponseDto> getAllUsers() {
         return userRespository.findAll().stream()
-                .map(u -> new UserResponseDto(u.getId(), u.getName(), u.getEmail(), u.getRole().getId()))
+                .map(u -> new UserResponseDto(
+                        u.getId(),
+                        u.getName(),
+                        u.getEmail(),
+                        UserRole.valueOf(u.getRole().getRoleName()) // Assuming roleName matches UserRole enum
+                ))
                 .toList();
     }
 

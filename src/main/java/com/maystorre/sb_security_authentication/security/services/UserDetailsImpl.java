@@ -10,9 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Data
@@ -28,15 +26,15 @@ public class UserDetailsImpl implements UserDetails { //UserDetails'i implemente
     @JsonIgnore
     private String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private GrantedAuthority authority;
 
     public UserDetailsImpl(Long id, String name, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
+                           GrantedAuthority authority) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
-        this.authorities = authorities;
+        this.authority = authority;
     }
 
     public static UserDetailsImpl build(User user) { //constr. function
@@ -49,13 +47,13 @@ public class UserDetailsImpl implements UserDetails { //UserDetails'i implemente
                 user.getName(),
                 user.getEmail(),
                 user.getPassword(),
-                Collections.singletonList(authority)
+                authority
         );
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return Collections.singletonList(authority); // userDetail interface of sb return colection but our user can have only one authority instead of a collection.
     }
 
     public Long getId() {

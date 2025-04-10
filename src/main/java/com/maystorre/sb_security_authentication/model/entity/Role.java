@@ -2,6 +2,7 @@ package com.maystorre.sb_security_authentication.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class Role {
     @Column(unique = true, name = "role_name")
     private String roleName;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude // Avoid circular references in @ToString
     private List<User> users;

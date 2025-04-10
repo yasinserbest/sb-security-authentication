@@ -1,5 +1,6 @@
 package com.maystorre.sb_security_authentication.service.impl;
 
+import com.maystorre.sb_security_authentication.enums.UserRole;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +26,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-        public UserResponseDto getLoggedInUser() {
+    public UserResponseDto getLoggedInUser() {
         // Get authentication from the security context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -34,6 +35,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        System.out.println(userDetails.getAuthorities());
         return userService.getUserById(userDetails.getId());
     }
 
@@ -55,10 +57,8 @@ public class AuthServiceImpl implements AuthService {
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getEmail(),
-                userService.getUserById(userDetails.getId()).role()
+                UserRole.valueOf(userDetails.getAuthorities().iterator().next().getAuthority())
             );
-
-
     }
 
 }

@@ -1,13 +1,8 @@
 package com.maystorre.sb_security_authentication.model.entity;
 
-import com.maystorre.sb_security_authentication.enums.UserRole;
-import com.maystorre.sb_security_authentication.model.entity.Role;
+
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.boot.autoconfigure.web.WebProperties;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
