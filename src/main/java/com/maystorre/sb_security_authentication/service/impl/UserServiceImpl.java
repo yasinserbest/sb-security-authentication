@@ -6,7 +6,7 @@ import com.maystorre.sb_security_authentication.model.dto.user.UserResponseDto;
 import com.maystorre.sb_security_authentication.model.entity.Role;
 import com.maystorre.sb_security_authentication.model.entity.User;
 import com.maystorre.sb_security_authentication.repository.RoleRepository;
-import com.maystorre.sb_security_authentication.repository.UserRespository;
+import com.maystorre.sb_security_authentication.repository.UserRepository;
 import com.maystorre.sb_security_authentication.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +20,10 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private final UserRespository userRespository;
+    private final UserRepository userRespository;
     private final RoleRepository roleRepository;
 
-    public UserServiceImpl(UserRespository userRespository, RoleRepository roleRepository) {
+    public UserServiceImpl(UserRepository userRespository, RoleRepository roleRepository) {
         this.userRespository = userRespository;
         this.roleRepository=roleRepository;
     }

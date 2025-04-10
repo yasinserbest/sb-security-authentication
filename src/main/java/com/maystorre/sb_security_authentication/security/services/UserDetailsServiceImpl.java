@@ -2,7 +2,7 @@ package com.maystorre.sb_security_authentication.security.services;
 
 
 import com.maystorre.sb_security_authentication.model.entity.User;
-import com.maystorre.sb_security_authentication.repository.UserRespository;
+import com.maystorre.sb_security_authentication.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService { //UserDetailsService içinde 1 adet aşağıdaki func var başka bişey yok.
     @Autowired
-    UserRespository userRepository;
+    UserRepository userRepository;
 
     @Override
     @Transactional
