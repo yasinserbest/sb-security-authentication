@@ -29,8 +29,5 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto userRequestDto) {
-        return ResponseEntity.ok(userService.createUser(userRequestDto));
-    }
+
 }

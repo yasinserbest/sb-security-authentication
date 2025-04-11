@@ -1,6 +1,9 @@
 package com.maystorre.sb_security_authentication.service.impl;
 
 import com.maystorre.sb_security_authentication.enums.UserRole;
+import com.maystorre.sb_security_authentication.model.dto.user.UserRequestDto;
+import com.maystorre.sb_security_authentication.model.entity.Role;
+import com.maystorre.sb_security_authentication.model.entity.User;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -12,6 +15,8 @@ import com.maystorre.sb_security_authentication.model.dto.user.UserResponseDto;
 import com.maystorre.sb_security_authentication.security.services.UserDetailsImpl;
 import com.maystorre.sb_security_authentication.service.AuthService;
 import com.maystorre.sb_security_authentication.service.UserService;
+
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -59,6 +64,11 @@ public class AuthServiceImpl implements AuthService {
                 userDetails.getEmail(),
                 UserRole.valueOf(userDetails.getAuthorities().iterator().next().getAuthority())
             );
+    }
+
+    @Override
+    public UserResponseDto signUp(UserRequestDto user) {
+        return userService.createUser(user);
     }
 
 }
