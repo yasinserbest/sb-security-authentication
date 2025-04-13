@@ -11,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -19,8 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private  UserDetailsServiceImpl userDetailsService;
-    private AuthEntryPoint unauthorizedEntryPoint;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final AuthEntryPoint unauthorizedEntryPoint;
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPoint unauthorizedEntryPoint) {
         this.userDetailsService = userDetailsService;
@@ -39,6 +40,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/user").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated()
                 )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -50,12 +52,9 @@ public class WebSecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, CustomAuthProvider customAuthProvider) //custom auth provider instead dao auth provider
-        throws Exception {
-    return http.getSharedObject(AuthenticationManagerBuilder.class)
-            .authenticationProvider(customAuthProvider)
-            .build();
-}
-
+            throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class).authenticationProvider(customAuthProvider).build();
+    }
 
 
     @Bean

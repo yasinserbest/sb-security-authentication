@@ -12,6 +12,7 @@ import com.maystorre.sb_security_authentication.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -23,11 +24,14 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRespository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRespository, RoleRepository roleRepository, UserMapper userMapper) {
+
+    public UserServiceImpl(UserRepository userRespository, RoleRepository roleRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRespository = userRespository;
         this.roleRepository=roleRepository;
         this.userMapper=userMapper;
+        this.passwordEncoder=passwordEncoder;
 
     }
 
@@ -40,6 +44,10 @@ public class UserServiceImpl implements UserService {
 
         // map to entity without role
         User user = userMapper.userRequestDtoToUser(userDto);
+
+        // hash password
+        String encodedPassword = passwordEncoder.encode(userDto.password());
+        user.setPassword(encodedPassword);
 
         // set role manually
         user.setRole(role);
