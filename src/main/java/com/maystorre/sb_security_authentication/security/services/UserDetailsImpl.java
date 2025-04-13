@@ -39,7 +39,7 @@ public class UserDetailsImpl implements UserDetails { //UserDetails'i implemente
 
     public static UserDetailsImpl build(User user) { //constr. function
 
-        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getRoleName());
+        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole().getRoleName().name());
 
 
         return new UserDetailsImpl(
