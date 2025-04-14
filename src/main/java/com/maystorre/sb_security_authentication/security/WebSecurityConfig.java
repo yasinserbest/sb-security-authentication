@@ -20,11 +20,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-    private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPoint unauthorizedEntryPoint;
 
-    public WebSecurityConfig(UserDetailsServiceImpl userDetailsService, AuthEntryPoint unauthorizedEntryPoint) {
-        this.userDetailsService = userDetailsService;
+    public WebSecurityConfig(AuthEntryPoint unauthorizedEntryPoint) {
         this.unauthorizedEntryPoint = unauthorizedEntryPoint;
     }
 

@@ -28,7 +28,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User with email not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User with email:" + email + " not found"));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Invalid password");

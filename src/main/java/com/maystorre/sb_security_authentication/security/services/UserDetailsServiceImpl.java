@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService { //UserDetailsService içinde 1 adet aşağıdaki func var başka bişey yok.
+public class UserDetailsServiceImpl implements UserDetailsService { //UserDetailsService içinde 1 adet aşağıdaki func var başka bişey yok. not: sen nromalde bunu websecuirytyconfig'de dao auth provider'a veriyodun. ama artık senin kendi CustomAuthProvider'in var doalyısıyla buna grgrek yok. sen authenticate deyip orda loggedin ediyosun user'i burda değil. yani bu kısım gereksiz ben nto olsun diye silmedim.
     @Autowired
     UserRepository userRepository;
 
