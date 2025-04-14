@@ -16,8 +16,6 @@ import com.maystorre.sb_security_authentication.security.services.UserDetailsImp
 import com.maystorre.sb_security_authentication.service.AuthService;
 import com.maystorre.sb_security_authentication.service.UserService;
 
-import java.util.Optional;
-
 @Service
 public class AuthServiceImpl implements AuthService {
 
@@ -32,15 +30,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public UserResponseDto getLoggedInUser() {
-        // Get authentication from the security context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("No authenticated user found");
-        }
+//        if (authentication == null || !authentication.isAuthenticated()) { // // bu kısmı not olsun diye silmedim bilerek yorum satırına aldım. bu if check ççalışmaz çünkü bu endpoint'in senin .authneticated() böyle olunca bu katmana inmez bile, direk CustomAuthProvider'da auhenticate'den geçemez ve AuthEntryPoint'ten hatayı fırlatır.
+//            throw new RuntimeException("No authenticated user found");
+//        }
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        System.out.println(userDetails.getAuthorities());
         return userService.getUserById(userDetails.getId());
     }
 

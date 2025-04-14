@@ -27,8 +27,5 @@ public class Role {
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude // Avoid circular references in @ToString
     private List<User> users;
-//
-//    public Role(String roleName) {
-//        this.roleName = roleName;
-//    }
+
 }

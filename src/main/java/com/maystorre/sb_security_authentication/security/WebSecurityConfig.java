@@ -35,6 +35,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/hello").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/getLoggedInUser","/api/auth/signout").authenticated()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/admin").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/api/user").hasAuthority("ROLE_USER")
@@ -44,14 +45,13 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(form -> form.permitAll()) // for UI login testing
-                .httpBasic(Customizer.withDefaults()); // for Postman / browser auth
+                .httpBasic(Customizer.withDefaults());
 
         return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, CustomAuthProvider customAuthProvider) //custom auth provider instead dao auth provider
+    public AuthenticationManager authenticationManager(HttpSecurity http, CustomAuthProvider customAuthProvider) //handle authentication process & error handling
             throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class).authenticationProvider(customAuthProvider).build();
     }

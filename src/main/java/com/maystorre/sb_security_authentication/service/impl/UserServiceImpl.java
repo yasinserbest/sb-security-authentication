@@ -40,19 +40,15 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(UserRequestDto userDto) {
 
         Role role = roleRepository.findById(userDto.role())
-                .orElseThrow(() -> new RuntimeException("Role not found: " + userDto.role()));
+                .orElseThrow(() ->  new APIException("Role not found", HttpStatus.NOT_FOUND));
 
-        // map to entity without role
         User user = userMapper.userRequestDtoToUser(userDto);
 
-        // hash password
         String encodedPassword = passwordEncoder.encode(userDto.password());
         user.setPassword(encodedPassword);
 
-        // set role manually
         user.setRole(role);
 
-        // Save and map back
         User savedUser = userRespository.save(user);
         return userMapper.userToUserResponseDto(savedUser);
     }
