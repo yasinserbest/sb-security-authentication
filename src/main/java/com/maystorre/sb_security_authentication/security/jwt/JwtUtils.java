@@ -7,14 +7,11 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -30,40 +27,20 @@ public class JwtUtils {
     @Value("${spring.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-
-    @Value("${spring.ecom.app.jwtCookieName}")
-    private String jwtCookie;
-
-    public String getJwtFromCookies(HttpServletRequest request) {
-        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
-        if (cookie != null) {
-            return cookie.getValue();
-        } else {
-            return null;
+    public String getJwtFromHeader(HttpServletRequest request) { //header'dan jwttoken'i alma
+        String bearerToken = request.getHeader("Authorization");
+        logger.debug("Authorization Header: {}", bearerToken);
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7); // Remove Bearer prefix
         }
-    }
-
-    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromEmail(userPrincipal.getEmail());
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt) //bana bir cookie yarat, jwtCookie burda app properties'de olan bir isim
-                .path("/api") //bu cookie /api için valid
-                .maxAge(24 * 60 * 60) //1 gün geçerli olsun
-                .httpOnly(false)
-                .build();
-        return cookie;
-    }
-
-    public ResponseCookie getCleanJwtCookie() { //cookie silme yerine boş bir cookie yarattı
-        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
-                .path("/api")
-                .build();
-        return cookie;
+        return null;
     }
 
 
-    public String generateTokenFromEmail(String username) { //username'den token yaratma
+    public String generateTokenFromEmail(UserDetailsImpl userDetails) { //username'den token yaratma
+    String email = userDetails.getEmail();
         return Jwts.builder()
-                .subject(username)
+                .subject(email)
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
                 .signWith(key())
@@ -97,6 +74,4 @@ public class JwtUtils {
         }
         return false;
     }
-
-
 }

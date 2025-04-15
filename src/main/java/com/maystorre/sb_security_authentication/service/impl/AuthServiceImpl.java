@@ -57,10 +57,10 @@ public class AuthServiceImpl implements AuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+        String jwtToken = jwtUtils.generateTokenFromEmail(userDetails);
 
         SignInResponse response = new SignInResponse(userDetails.getId(),
-                userDetails.getUsername(), userDetails.getEmail(),  UserRole.valueOf(userDetails.getAuthorities().iterator().next().getAuthority()), jwtCookie.toString());
+                userDetails.getUsername(), userDetails.getEmail(),  UserRole.valueOf(userDetails.getAuthorities().iterator().next().getAuthority()), jwtToken);
 
         return response;
     }
@@ -68,13 +68,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserResponseDto signUp(UserRequestDto user) {
         return userService.createUser(user);
-    }
-
-
-    @Override
-    public String signOut() {
-        ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
-        return jwtCookie.toString();
     }
 
 }
