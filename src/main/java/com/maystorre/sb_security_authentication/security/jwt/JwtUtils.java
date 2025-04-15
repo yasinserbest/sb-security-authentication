@@ -1,0 +1,102 @@
+package com.maystorre.sb_security_authentication.security.jwt;
+
+import com.maystorre.sb_security_authentication.security.services.UserDetailsImpl;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
+
+import javax.crypto.SecretKey;
+import java.security.Key;
+import java.util.Date;
+
+@Component
+public class JwtUtils {
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
+
+    @Value("${spring.app.jwtSecret}")
+    private String jwtSecret;
+
+    @Value("${spring.app.jwtExpirationMs}")
+    private int jwtExpirationMs;
+
+
+    @Value("${spring.ecom.app.jwtCookieName}")
+    private String jwtCookie;
+
+    public String getJwtFromCookies(HttpServletRequest request) {
+        Cookie cookie = WebUtils.getCookie(request, jwtCookie);
+        if (cookie != null) {
+            return cookie.getValue();
+        } else {
+            return null;
+        }
+    }
+
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
+        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt) //bana bir cookie yarat, jwtCookie burda app properties'de olan bir isim
+                .path("/api") //bu cookie /api için valid
+                .maxAge(24 * 60 * 60) //1 gün geçerli olsun
+                .httpOnly(false)
+                .build();
+        return cookie;
+    }
+
+    public ResponseCookie getCleanJwtCookie() { //cookie silme yerine boş bir cookie yarattı
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie, null)
+                .path("/api")
+                .build();
+        return cookie;
+    }
+
+
+    public String generateTokenFromUsername(String username) { //username'den token yaratma
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(new Date())
+                .expiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(key())
+                .compact();
+    }
+
+    public String getUserNameFromJwtToken(String token) { //token'i anlamlı user'a çevirme
+        return Jwts.parser()
+                        .verifyWith((SecretKey) key())
+                .build().parseSignedClaims(token)
+                .getPayload().getSubject();
+    }
+
+    private Key key() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
+
+    public boolean validateJwtToken(String authToken) { //token için validasyon kontrolü
+        try {
+            System.out.println("Validate");
+            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(authToken);
+            return true;
+        } catch (MalformedJwtException e) {
+            logger.error("Invalid JWT token: {}", e.getMessage());
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT token is expired: {}", e.getMessage());
+        } catch (UnsupportedJwtException e) {
+            logger.error("JWT token is unsupported: {}", e.getMessage());
+        } catch (IllegalArgumentException e) {
+            logger.error("JWT claims string is empty: {}", e.getMessage());
+        }
+        return false;
+    }
+
+
+}
