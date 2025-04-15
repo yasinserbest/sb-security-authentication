@@ -7,10 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ApplicationController {
 
-    @GetMapping("/hello")
-    public String publicHello() {
-        return "Hello, world!";
-    }
 
     @GetMapping("/user")
     public String privateUser() {

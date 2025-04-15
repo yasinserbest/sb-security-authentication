@@ -1,7 +1,8 @@
 package com.maystorre.sb_security_authentication.security;
 
+import com.maystorre.sb_security_authentication.security.jwt.AuthEntryPoint;
+import com.maystorre.sb_security_authentication.security.jwt.AuthTokenFilter;
 import com.maystorre.sb_security_authentication.security.services.CustomAuthProvider;
-import com.maystorre.sb_security_authentication.security.services.UserDetailsServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -27,11 +29,15 @@ public class WebSecurityConfig {
     }
 
     @Bean
+    public AuthTokenFilter authenticationJwtTokenFilter() {
+        return new AuthTokenFilter();
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/hello").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/getLoggedInUser","/api/auth/signout").authenticated()
                         .requestMatchers("/h2-console/**").permitAll()
@@ -39,6 +45,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/user").hasAuthority("ROLE_USER")
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint))
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))

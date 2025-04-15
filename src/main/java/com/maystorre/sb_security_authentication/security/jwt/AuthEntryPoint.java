@@ -1,4 +1,4 @@
-package com.maystorre.sb_security_authentication.security;
+package com.maystorre.sb_security_authentication.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;

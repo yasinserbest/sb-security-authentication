@@ -1,9 +1,10 @@
 package com.maystorre.sb_security_authentication.service.impl;
 
 import com.maystorre.sb_security_authentication.enums.UserRole;
+import com.maystorre.sb_security_authentication.model.dto.auth.SignInResponse;
 import com.maystorre.sb_security_authentication.model.dto.user.UserRequestDto;
-import com.maystorre.sb_security_authentication.model.entity.Role;
-import com.maystorre.sb_security_authentication.model.entity.User;
+import com.maystorre.sb_security_authentication.security.jwt.JwtUtils;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,10 +22,12 @@ public class AuthServiceImpl implements AuthService {
 
     private UserService userService;
     private AuthenticationManager authenticationManager;
+    private JwtUtils jwtUtils;
 
-    public AuthServiceImpl(UserService userService, AuthenticationManager authenticationManager) {
+    public AuthServiceImpl(UserService userService, AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
         this.userService = userService;
         this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
     }
 
 
@@ -42,29 +45,36 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public  UserResponseDto signIn(SignInRequest signInRequestDto) {
+    public SignInResponse signIn(SignInRequest signInRequestDto) {
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                signInRequestDto.getEmail(),
-                signInRequestDto.getPassword()
-            )
+                new UsernamePasswordAuthenticationToken(
+                        signInRequestDto.getEmail(),
+                        signInRequestDto.getPassword()
+                )
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-            return new UserResponseDto(
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                UserRole.valueOf(userDetails.getAuthorities().iterator().next().getAuthority())
-            );
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+
+        SignInResponse response = new SignInResponse(userDetails.getId(),
+                userDetails.getUsername(), userDetails.getEmail(),  UserRole.valueOf(userDetails.getAuthorities().iterator().next().getAuthority()), jwtCookie.toString());
+
+        return response;
     }
 
     @Override
     public UserResponseDto signUp(UserRequestDto user) {
         return userService.createUser(user);
+    }
+
+
+    @Override
+    public String signOut() {
+        ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
+        return jwtCookie.toString();
     }
 
 }

@@ -44,7 +44,7 @@ public class JwtUtils {
     }
 
     public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-        String jwt = generateTokenFromUsername(userPrincipal.getUsername());
+        String jwt = generateTokenFromEmail(userPrincipal.getEmail());
         ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt) //bana bir cookie yarat, jwtCookie burda app properties'de olan bir isim
                 .path("/api") //bu cookie /api için valid
                 .maxAge(24 * 60 * 60) //1 gün geçerli olsun
@@ -61,7 +61,7 @@ public class JwtUtils {
     }
 
 
-    public String generateTokenFromUsername(String username) { //username'den token yaratma
+    public String generateTokenFromEmail(String username) { //username'den token yaratma
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
@@ -70,7 +70,7 @@ public class JwtUtils {
                 .compact();
     }
 
-    public String getUserNameFromJwtToken(String token) { //token'i anlamlı user'a çevirme
+    public String getEmailFromJwtToken(String token) { //token'i anlamlı user'a çevirme
         return Jwts.parser()
                         .verifyWith((SecretKey) key())
                 .build().parseSignedClaims(token)
