@@ -2,6 +2,7 @@ package com.maystorre.sb_security_authentication.security;
 
 import com.maystorre.sb_security_authentication.security.jwt.AuthEntryPoint;
 import com.maystorre.sb_security_authentication.security.jwt.AuthTokenFilter;
+import com.maystorre.sb_security_authentication.security.services.CustomAccessDeniedHandler;
 import com.maystorre.sb_security_authentication.security.services.CustomAuthProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,9 +24,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final AuthEntryPoint unauthorizedEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
 
-    public WebSecurityConfig(AuthEntryPoint unauthorizedEntryPoint) {
+    public WebSecurityConfig(AuthEntryPoint unauthorizedEntryPoint, CustomAccessDeniedHandler accessDeniedHandler) {
         this.unauthorizedEntryPoint = unauthorizedEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
     }
 
     @Bean
@@ -47,7 +50,9 @@ public class WebSecurityConfig {
                 )
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedEntryPoint))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(unauthorizedEntryPoint) //401 handler
+                        .accessDeniedHandler(accessDeniedHandler))        //403 handler
                 .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .csrf(AbstractHttpConfigurer::disable)
                 .httpBasic(Customizer.withDefaults());
