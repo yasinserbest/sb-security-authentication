@@ -12,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomAuthProvider implements AuthenticationProvider {
+public class CustomAuthProvider implements AuthenticationProvider { // Handles email/password authentication manually (on login request, during sign-in -/api/auth/signin-)
 
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
